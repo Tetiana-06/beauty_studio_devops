@@ -1,0 +1,170 @@
+# Назва робочого процесу (workflow), яка відображається у вкладці Actions на GitHub
+name: Continuous Integration & Delivery
+
+# Блок тригерів: визначає події, які автоматично запускають цей пайплайн
+on:
+  # Запуск при прямій відправці коду (git push)
+  push:
+    # Відстежувати пуші тільки в основну гілку main
+    branches: [ main ]
+  # Запуск при створенні або оновленні Pull Request (PR)
+  pull_request:
+    # Відстежувати PR, які націлені на злиття в гілку main
+    branches: [ main ]
+
+# Налаштування прав доступу для системного токена GITHUB_TOKEN
+permissions:
+  # Дозволити раннеру читати код репозиторію
+  contents: read
+  # Дозволити раннеру завантажувати зібрані Docker-образи в GitHub Packages (ghcr.io)
+  packages: write
+
+# Секція робіт (jobs): набір незалежних завдань, які виконуються на віртуальних машинах
+jobs:
+  # Завдання 2 та 3: Тестування та статичний аналіз (Backend)
+
+  # Унікальний технічний ідентифікатор першої задачі
+  backend-test:
+    # Читабельна назва задачі для інтерфейсу перевірок у GitHub
+    name: Backend Lint, Build & Test
+    # Операційна система хмарної віртуальної машини (раннера)
+    runs-on: ubuntu-latest
+    # Послідовний список кроків, які виконуються всередині цієї віртуальної машини
+    steps:
+      # Назва першого кроку
+      - name: Checkout repository
+        # Готовий офіційний екшен: клонує код репозиторію у віртуальну машину раннера
+        uses: actions/checkout@v4
+
+      # Назва другого кроку
+      - name: Set up Python
+        # Екшен для встановлення потрібної версії інтерпретатора Python
+        uses: actions/setup-python@v5
+        # Вхідні параметри для налаштування Python
+        with:
+          # Встановлюємо конкретну версію Python 3.11
+          python-version: '3.11'
+          # Автоматичне збереження та відновлення кешу завантажених коліс pip (пришвидшує запуски)
+          cache: 'pip'
+
+      # Назва третього кроку
+      - name: Install dependencies
+        # Символ | дозволяє виконати декілька рядків звичайних Bash-команд поспіль
+        run: |
+          # Оновлюємо сам пакетний менеджер pip до останньої стабільної версії
+          python -m pip install --upgrade pip
+          # Встановлюємо лінтер ruff, тестовий фреймворк pytest та клієнт httpx для емуляції API-запитів
+          pip install ruff pytest httpx
+          # Встановлюємо бібліотеки бекенду (FastAPI, SQLAlchemy тощо) з файлу requirements.txt
+          pip install -r backend/requirements.txt
+
+      # Назва четвертого кроку
+      - name: Run Linter (Ruff)
+        # Виконуємо лінтинг: якщо є помилки стилю чи невикористані імпорти, ruff поверне код 1 і зупинить CI
+        run: |
+          ruff check backend/
+
+      # Назва п'ятого кроку
+      - name: Run Tests (Pytest)
+        # Додаємо папку backend до шляхів імпорту Python і запускаємо виконання тестів
+        run: |
+          PYTHONPATH=backend pytest backend/tests/
+
+  # Завдання 2: Збірка / перевірка Frontend
+
+  # Унікальний ідентифікатор другої задачі (виконується паралельно з backend-test)
+  frontend-test:
+    # Читабельна назва перевірки фронтенду
+    name: Frontend Lint & Validation
+    # Окремий ізольований раннер на Ubuntu
+    runs-on: ubuntu-latest
+    # Список кроків для перевірки фронтенд-складової
+    steps:
+      # Крок завантаження коду в робочу директорію другого раннера
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Крок перевірки цілісності статичних файлів
+      - name: Validate HTML/Nginx files
+        run: |
+          # Перевіряємо за допомогою bash-утиліти test наявність головного файлу розмітки index.html
+          test -f frontend/index.html
+          # Перевіряємо наявність конфігураційного файлу веб-сервера nginx.conf
+          test -f frontend/nginx.conf
+          # Виводимо повідомлення про успішну перевірку файлів у логи раннера
+          echo "Frontend static files verified successfully."
+
+
+  # Завдання 4 та 5: Збірка Docker-образів та публікація в GHCR
+
+  # Унікальний ідентифікатор третьої задачі
+  build-and-push:
+    # Назва завдання у вікні перевірок
+    name: Build & Push Docker Images
+    # Блокувальник: задача почнеться ТІЛЬКИ після успішного завершення ОБОХ попередніх задач
+    needs: [backend-test, frontend-test]
+    # Операційна система для збірки контейнерів
+    runs-on: ubuntu-latest
+    # Секція стратегії виконання
+    strategy:
+      # Матриця збірки: запускає це завдання двічі паралельно, підставляючи по черзі backend та frontend
+      matrix:
+        service: [backend, frontend]
+
+    # Список кроків збірки та публікації
+    steps:
+      # Клонуємо код репозиторію для доступу до файлів Dockerfile
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Назва кроку ініціалізації середовища Docker
+      - name: Set up Docker Buildx
+        # Встановлює сучасний інструмент складання образів Docker Buildx із підтримкою кешування шарів
+        uses: docker/setup-buildx-action@v3
+
+      # Крок авторизації в хмарному сховищі контейнерів
+      - name: Log in to GitHub Container Registry
+        # Умова запуску: виконувати авторизацію тільки якщо це прямий пуш/мердж, а НЕ Pull Request
+        if: github.event_name != 'pull_request'
+        # Офіційний екшен авторизації в реєстрах образів
+        uses: docker/login-action@v3
+        # Параметри доступу
+        with:
+          # Адреса реєстру образів GitHub
+          registry: ghcr.io
+          # Ім'я користувача, який ініціював запуск workflow (власник репозиторію)
+          username: ${{ github.actor }}
+          # Автоматично згенерований тимчасовий токен доступу до API GitHub
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Крок визначення метаданих (тегів та міток) для створюваного контейнера
+      - name: Extract Docker metadata
+        # Присвоюємо ID кроку, щоб звернутися до його вихідних даних на наступному кроці
+        id: meta
+        # Екшен для генерації тегів образів
+        uses: docker/metadata-action@v5
+        # Налаштування формату назв і тегів
+        with:
+          # Повна адреса майбутнього образу у форматі ghcr.io/<власник>/<репозиторій>/<сервіс>
+          images: ghcr.io/${{ github.repository }}/${{ matrix.service }}
+          # Правила тегування
+          tags: |
+            # Перший тег: короткий 7-значний хеш коміту (наприклад, sha-7a1b2c3)
+            type=sha,format=short
+            # Другий тег: latest; створюється ТІЛЬКИ якщо збірка відбулася з основної гілки main
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+
+      # Головний крок збірки та відправки Docker-образу
+      - name: Build and push Docker image
+        # Екшен від компанії Docker для білду і пушу
+        uses: docker/build-push-action@v5
+        # Параметри збірки
+        with:
+          # Контекст збірки: шлях до папки з файлами (./backend або ./frontend за матрицею)
+          context: ./${{ matrix.service }}
+          # Відправляти образ у реєстр ТІЛЬКИ якщо це не перевірка Pull Request
+          push: ${{ github.event_name != 'pull_request' }}
+          # Передаємо згенеровані на попередньому кроці теги (sha та latest)
+          tags: ${{ steps.meta.outputs.tags }}
+          # Передаємо стандартні OCI-мітки (автор, назва репозиторію тощо)
+          labels: ${{ steps.meta.outputs.labels }}
