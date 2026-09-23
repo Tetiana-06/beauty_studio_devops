@@ -1,9 +1,9 @@
-from fastapi import FastAPI, Depends
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from app.database import SessionLocal, Booking, init_db
-from fastapi import HTTPException
+
+from app.database import Booking, SessionLocal, init_db
 
 app = FastAPI(title="Beauty Studio API")
 
@@ -15,9 +15,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 class BookingCreate(BaseModel):
     client_name: str
     service: str
+
 
 def get_db():
     db = SessionLocal()
@@ -26,6 +28,7 @@ def get_db():
     finally:
         db.close()
 
+
 @app.on_event("startup")
 def startup():
     try:
@@ -33,13 +36,16 @@ def startup():
     except Exception:
         pass
 
+
 @app.get("/health")
 def health_check():
     return {"status": "ok", "service": "Beauty Studio API"}
 
+
 @app.get("/api/bookings")
 def get_bookings(db: Session = Depends(get_db)):
     return db.query(Booking).all()
+
 
 @app.post("/api/bookings", status_code=201)
 def create_booking(booking: BookingCreate, db: Session = Depends(get_db)):
@@ -57,4 +63,3 @@ def delete_booking(booking_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Booking not found")
     db.delete(booking)
     db.commit()
-    return None
