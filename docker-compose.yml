@@ -1,0 +1,47 @@
+
+
+# Кореневий блок, у якому оголошуються всі контейнери-компоненти системи.
+services:
+  # Призначення: Внутрішнє ім'я сервісу в системі Compose. Це ім'я автоматично стає локальним DNS-хостом у віртуальній мережі Docker.
+  db:
+    # Вказує, який базовий готовий образ завантажити з публічного реєстру Docker Hub. -alpine — полегшений дистрибутив на базі Alpine Linux
+    image: postgres:15-alpine
+    container_name: beauty_db
+    # Політика перезапуску контейнера, always вказує Docker автоматично підіймати контейнер, якщо процес аварійно завершився з помилкою
+    restart: always
+    # Передає змінні середовища (Environment Variables) всередину контейнера в момент його першого запуску.
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: beauty_db
+      # Прокидання (мапінг) портів між хостовою системою (комп'ютером) та контейнером.
+      # Ліва частина (5432): відкриває порт на локальному комп'ютері, що дозволяє підключатися до цієї БД ззовні
+      # Права частина (5432): внутрішній порт процесу PostgreSQL всередині ізольованого контейнера.
+    ports:
+      - "5432:5432"
+    # Монтування постійного сховища (Volume) для збереження даних. Завдяки цій директиві після зупинки або перезбірки контейнерів усі бронювання клієнтів залишаються збереженими.
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    container_name: beauty_backend
+    restart: always
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/beauty_db
+    ports:
+      - "8000:8000"  #  Прокидає порт: звернення до ПК (localhost:8000) йде в порт 8000 контейнера
+    depends_on:
+      - db           # Чекає, поки стартує база даних
+
+  frontend:
+    build: ./frontend
+    container_name: beauty_frontend
+    restart: always
+    ports:
+      - "3000:80"  #  Мапить порт 3000 твого ПК на внутрішній 80-й порт Nginx
+    depends_on:
+      - backend
+
+volumes:
+  db_data:

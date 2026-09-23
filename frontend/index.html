@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aura Beauty Studio | Онлайн запис</title>
+  <!-- Підключаємо стильний шрифт -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #d4a373; /* Золотистий акцент */
+      --secondary: #faedcd; /* Світло-бежевий */
+      --dark: #2c3e50;
+      --text: #4a4a4a;
+      --pink-light: #fefae0;
+      --bg: #fff;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--secondary);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* Хедер */
+    header {
+      background-color: var(--bg);
+      padding: 20px 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      color: var(--primary);
+      margin: 0;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--dark);
+      margin-top: -5px;
+    }
+
+    /* Основний контент */
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 0 20px;
+      padding-bottom: 60px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.8rem;
+      color: var(--dark);
+      margin-bottom: 10px;
+    }
+
+    /* Спекція послуг (UI Елемент) */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+      margin-bottom: 50px;
+    }
+
+    .service-item {
+      background: var(--bg);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      text-align: center;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+
+    .service-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(212, 163, 115, 0.2);
+    }
+
+    .service-item.selected {
+      border-color: var(--primary);
+      background-color: var(--pink-light);
+    }
+
+    .service-icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      display: block;
+    }
+
+    .service-name {
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--dark);
+      margin-bottom: 10px;
+    }
+
+    .service-price {
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    /* Форма запису */
+    .booking-form {
+      background: var(--bg);
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    .booking-form h2 {
+      text-align: center;
+      font-family: 'Playfair Display', serif;
+      color: var(--dark);
+      margin-top: 0;
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--dark);
+      font-size: 0.9rem;
+    }
+
+    input[type="text"], select {
+      width: 100%;
+      padding: 15px;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1rem;
+      box-sizing: border-box; /* Важливо для width: 100% */
+      transition: border-color 0.3s;
+    }
+
+    input[type="text"]:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      background-color: #fff;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 18px;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.1s;
+      box-shadow: 0 5px 15px rgba(212, 163, 115, 0.3);
+    }
+
+    .submit-btn:hover {
+      background-color: #bc8a5f;
+    }
+
+    .submit-btn:active {
+      transform: translateY(1px);
+    }
+
+    /* Статус-повідомлення */
+    #status {
+      text-align: center;
+      margin-top: 25px;
+      padding: 15px;
+      border-radius: 8px;
+      font-weight: 600;
+      display: none; /* Приховано за замовчуванням */
+    }
+
+    .status-success {
+      background-color: #d4edda;
+      color: #155724;
+      display: block !important;
+    }
+
+    .status-error {
+      background-color: #f8d7da;
+      color: #721c24;
+      display: block !important;
+    }
+
+    /* Адаптивність */
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 2rem; }
+      .booking-form { padding: 25px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">Aura</div>
+    <div class="subtitle">Beauty Studio</div>
+  </header>
+
+  <div class="container">
+    <div class="hero">
+      <h1>Онлайн запис</h1>
+      <p>Оберіть послугу та залиште свої контакти, ми зв'яжемося з Вами.</p>
+    </div>
+
+    <!-- UI: Картки послуг -->
+    <div class="services-grid" id="servicesGrid">
+      <div class="service-item" onclick="selectService(this, 'Елітний Манікюр')">
+        <span class="service-icon">💅</span>
+        <div class="service-name">Манікюр</div>
+        <div class="service-price">від 800 грн</div>
+      </div>
+      <div class="service-item" onclick="selectService(this, 'Стрижка & Стиль')">
+        <span class="service-icon">💇‍♀️</span>
+        <div class="service-name">Стрижка & Стиль</div>
+        <div class="service-price">від 1200 грн</div>
+      </div>
+      <div class="service-item" onclick="selectService(this, 'Spa-догляд')">
+        <span class="service-icon">🧖‍♀️</span>
+        <div class="service-name">Spa-догляд</div>
+        <div class="service-price">від 1500 грн</div>
+      </div>
+    </div>
+
+    <!-- Форма -->
+    <div class="booking-form">
+      <h2>Заповніть дані</h2>
+
+      <div class="form-group">
+        <label for="client_name">Ваше повне ім'я</label>
+        <input type="text" id="client_name" placeholder="Олена Петренко">
+      </div>
+
+      <div class="form-group">
+        <label for="service_select">Обрана послуга</label>
+        <select id="service_select">
+          <option value="" disabled selected>Виберіть зі списку або натисніть на картку вище</option>
+          <option value="Елітний Манікюр">Манікюр</option>
+          <option value="Стрижка & Стиль">Стрижка & Стиль</option>
+          <option value="Spa-догляд">Spa-догляд</option>
+        </select>
+      </div>
+
+      <button class="submit-btn" onclick="bookService()">Записатися</button>
+
+      <div id="status"></div>
+    </div>
+  </div>
+
+  <script>
+    // Функція для вибору послуги через клік по картці (покращення UI)
+    function selectService(element, serviceName) {
+      // Прибираємо виділення з усіх карток
+      document.querySelectorAll('.service-item').forEach(item => {
+        item.classList.remove('selected');
+      });
+      // Додаємо виділення натиснутій картці
+      element.classList.add('selected');
+      // Оновлюємо значення в випадаючому списку форми
+      document.getElementById('service_select').value = serviceName;
+    }
+
+    async function bookService() {
+      const client_name = document.getElementById('client_name').value;
+      const service = document.getElementById('service_select').value;
+      const statusEl = document.getElementById('status');
+
+      // Скидання статусу
+      statusEl.className = '';
+      statusEl.innerText = '';
+
+      if (!client_name || !service) {
+        statusEl.innerText = "Будь ласка, заповніть ім'я та оберіть послугу.";
+        statusEl.classList.add('status-error');
+        return;
+      }
+
+      try {
+        // Запит до backend (знаходиться в docker-compose мережі)
+        const res = await fetch("http://localhost:8000/api/bookings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ client_name, service })
+        });
+
+        if (res.ok) {
+          statusEl.innerText = `Дякуємо, ${client_name}! Ваш запис на ${service} прийнято.`;
+          statusEl.classList.add('status-success');
+          // Очищення форми
+          document.getElementById('client_name').value = '';
+          document.getElementById('service_select').value = '';
+          document.querySelectorAll('.service-item').forEach(item => item.classList.remove('selected'));
+        } else {
+          statusEl.innerText = "Помилка сервера. Спробуйте пізніше.";
+          statusEl.classList.add('status-error');
+        }
+      } catch (err) {
+        statusEl.innerText = "Backend сервер недоступний (перевірте Docker).";
+        statusEl.classList.add('status-error');
+      }
+    }
+  </script>
+</body>
+</html>
