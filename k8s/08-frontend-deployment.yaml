@@ -22,6 +22,7 @@ spec:
       annotations:
         devops-lab/mascot-approved: "true"
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: frontend
           image: beauty-frontend:1.0.0
@@ -32,6 +33,7 @@ spec:
             requests:
               cpu: 50m
               memory: 64Mi
+              ephemeral-storage: "128Mi"
             limits:
               cpu: 150m
               memory: 128Mi

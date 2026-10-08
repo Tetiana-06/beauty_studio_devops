@@ -22,6 +22,7 @@ spec:
       annotations:
         devops-lab/mascot-approved: "true"
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: backend
           image: beauty-backend:1.0.0
@@ -37,6 +38,7 @@ spec:
             requests:
               cpu: 100m
               memory: 128Mi
+              ephemeral-storage: "256Mi"
             limits:
               cpu: 250m
               memory: 256Mi

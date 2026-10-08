@@ -22,12 +22,22 @@ spec:
       annotations:
         devops-lab/mascot-approved: "true"
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: postgres
           image: postgres:15-alpine
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5432
+              resources:
+                requests:
+                  cpu: "100m"
+                  memory: "128Mi"
+                  ephemeral-storage: "256Mi"
+                limits:
+                  cpu: "250m"
+                  memory: "256Mi"
+                  ephemeral-storage: "512Mi"
           env:
             - name: POSTGRES_USER
               valueFrom:
