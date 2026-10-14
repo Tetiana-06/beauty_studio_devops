@@ -2,7 +2,8 @@
 Дякуємо за встановлення чарта {{ .Chart.Name }} (версія {{ .Chart.Version }}, додаток {{ .Chart.AppVersion }})!
 Реліз: {{ .Release.Name }}
 Простір імен: {{ .Release.Namespace }}
-Талісман проєкту: гарбуз 🎃 (devops-lab/mascot-approved: "true")
+Студент: Tetiana (devops-lab/mascot-approved: "true")
+mascot: tetiana
 
 --------------------------------------------------------------------------------
 ЯК ВІДКРИТИ ТА ПЕРЕВІРИТИ ЗАСТОСУНОК:

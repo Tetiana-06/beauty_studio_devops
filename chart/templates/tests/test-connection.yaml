@@ -21,6 +21,14 @@ spec:
         - |
           echo "=== [HELM RELEASE TEST] ==="
           echo "Testing backend connectivity at: {{ include "beauty-studio.fullname" . }}-backend:{{ .Values.backend.service.port }}/health"
-          wget -q -O - http://{{ include "beauty-studio.fullname" . }}-backend:{{ .Values.backend.service.port }}/health || exit 1
-          echo ""
-          echo "=== Backend test succeeded! Application is healthy. ==="
+          for i in $(seq 1 15); do
+            if wget -q -O - http://{{ include "beauty-studio.fullname" . }}-backend:{{ .Values.backend.service.port }}/health; then
+              echo ""
+              echo "=== Backend test succeeded! Application is healthy. ==="
+              exit 0
+            fi
+            echo "Waiting for backend to become ready... ($i/15)"
+            sleep 2
+          done
+          echo "Backend failed health check after retries"
+          exit 1

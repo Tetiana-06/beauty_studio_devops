@@ -32,8 +32,6 @@ Create chart name and version as used by the chart label.
 
 {{/*
 Common labels required by standard conventions and Додаток А
-Note: Kubernetes labels strictly require ASCII characters ([A-Za-z0-9_.-]).
-Therefore, 'harbuz' is used in labels, while full Cyrillic 'гарбуз' is in annotations.
 */}}
 {{- define "beauty-studio.labels" -}}
 helm.sh/chart: {{ include "beauty-studio.chart" . }}
@@ -42,7 +40,8 @@ helm.sh/chart: {{ include "beauty-studio.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
-mascot: harbuz
+student: tetiana
+mascot: tetiana
 {{- end }}
 
 {{/*
@@ -50,8 +49,8 @@ Common annotations required by Додаток А
 */}}
 {{- define "beauty-studio.annotations" -}}
 devops-lab/mascot-approved: "true"
-mascot: "гарбуз"
-devops-lab/mascot: "гарбуз"
+student: "tetiana"
+mascot: "tetiana"
 {{- end }}
 
 {{/*
