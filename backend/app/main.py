@@ -39,7 +39,7 @@ def startup():
 
 @app.get("/health")
 def health_check():
-    return {"status": "ok", "service": "Beauty Studio API"}
+        return {"status": "ok", "service": "Beauty Studio API", "version": "1.1.0"}
 
 
 @app.get("/api/bookings")

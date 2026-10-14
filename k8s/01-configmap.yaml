@@ -1,0 +1,16 @@
+# DVO-L3-7F2A91
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: beauty-studio
+  labels:
+    app: backend
+    student: tetiana
+  annotations:
+    devops-lab/mascot-approved: "true"
+data:
+  APP_ENV: "production"
+  PORT: "8000"
+  LOG_LEVEL: "info"
+  CORS_ALLOW_ALL: "true"

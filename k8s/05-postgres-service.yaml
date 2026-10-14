@@ -1,0 +1,19 @@
+# DVO-L3-7F2A91
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+  namespace: beauty-studio
+  labels:
+    app: postgres
+    student: tetiana
+  annotations:
+    devops-lab/mascot-approved: "true"
+spec:
+  type: ClusterIP
+  selector:
+    app: postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
