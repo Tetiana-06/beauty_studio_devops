@@ -1,0 +1,44 @@
+# DVO-L4-3C8B52
+Дякуємо за встановлення чарта {{ .Chart.Name }} (версія {{ .Chart.Version }}, додаток {{ .Chart.AppVersion }})!
+Реліз: {{ .Release.Name }}
+Простір імен: {{ .Release.Namespace }}
+Талісман проєкту: гарбуз 🎃 (devops-lab/mascot-approved: "true")
+
+--------------------------------------------------------------------------------
+ЯК ВІДКРИТИ ТА ПЕРЕВІРИТИ ЗАСТОСУНОК:
+--------------------------------------------------------------------------------
+{{- if .Values.ingress.enabled }}
+1. Ingress увімкнено!
+   Переконайтеся, що minikube tunnel запущено у фоновому терміналі:
+     minikube tunnel
+
+   Додайте наступний запис у файл hosts (C:\Windows\System32\drivers\etc\hosts або /etc/hosts):
+     127.0.0.1  {{ (index .Values.ingress.hosts 0).host }}
+
+   Відкрийте веб-інтерфейс у браузері:
+     http://{{ (index .Values.ingress.hosts 0).host }}/
+   Перевірка API бекенду:
+     http://{{ (index .Values.ingress.hosts 0).host }}/api/health
+{{- else if eq .Values.frontend.service.type "NodePort" }}
+1. Застосунок налаштовано через Service типу NodePort:
+   Для автоматичного відкриття в браузері через Minikube виконайте:
+     minikube service {{ include "beauty-studio.fullname" . }}-frontend -n {{ .Release.Namespace }}
+
+   Або дізнайтеся URL сервісу:
+     minikube service {{ include "beauty-studio.fullname" . }}-frontend -n {{ .Release.Namespace }} --url
+{{- else }}
+1. Відкрийте порт за допомогою kubectl port-forward:
+     kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "beauty-studio.fullname" . }}-frontend 8080:{{ .Values.frontend.service.port }}
+   Після цього відкрийте:
+     http://localhost:8080/
+{{- end }}
+
+2. Доступ до API документації (Swagger/OpenAPI):
+     kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "beauty-studio.fullname" . }}-backend 8000:{{ .Values.backend.service.port }}
+   Перейдіть за адресою:
+     http://localhost:8000/docs
+     http://localhost:8000/health
+
+3. Запуск автоматичних тестів релізу:
+     helm test {{ .Release.Name }} -n {{ .Release.Namespace }}
+--------------------------------------------------------------------------------

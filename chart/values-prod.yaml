@@ -1,0 +1,59 @@
+# DVO-L4-3C8B52
+# Environment: Production (values-prod.yaml)
+
+backend:
+  replicaCount: 2
+  image:
+    tag: "1.1.0"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+      ephemeral-storage: "256Mi"
+    limits:
+      cpu: 250m
+      memory: 256Mi
+      ephemeral-storage: "512Mi"
+  config:
+    appEnv: "production"
+    logLevel: "info"
+
+frontend:
+  replicaCount: 2
+  image:
+    tag: "1.0.0"
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+      ephemeral-storage: "128Mi"
+    limits:
+      cpu: 150m
+      memory: 128Mi
+      ephemeral-storage: "256Mi"
+
+database:
+  persistence:
+    enabled: true
+    size: 1Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+      ephemeral-storage: "256Mi"
+    limits:
+      cpu: 250m
+      memory: 256Mi
+      ephemeral-storage: "512Mi"
+
+ingress:
+  enabled: true
+  hosts:
+    - host: "beauty-studio.prod.local"
+      paths:
+        - path: /
+          pathType: Prefix
+          service: frontend
+        - path: /api
+          pathType: Prefix
+          service: backend
