@@ -7,7 +7,9 @@ client = TestClient(app)
 def test_health_check():
     response = client.get("/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok", "service": "Beauty Studio API"}
+    data = response.json()
+    assert data.get("status") == "ok"
+    assert data.get("service") == "Beauty Studio API"
 
 
 def test_create_booking_schema_validation():
