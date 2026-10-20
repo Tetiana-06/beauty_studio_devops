@@ -19,10 +19,20 @@ spec:
         {{- include "beauty-studio.annotations" . | nindent 8 }}
     spec:
       restartPolicy: Never
+      automountServiceAccountToken: false
       containers:
         - name: pre-upgrade-verification
           image: "{{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}"
           imagePullPolicy: {{ .Values.database.image.pullPolicy }}
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "16Mi"
+              ephemeral-storage: "16Mi"
+            limits:
+              cpu: "100m"
+              memory: "64Mi"
+              ephemeral-storage: "64Mi"
           command:
             - "sh"
             - "-c"
