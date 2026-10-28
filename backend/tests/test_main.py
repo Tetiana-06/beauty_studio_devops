@@ -1,4 +1,4 @@
-from app.main import app
+from app.main import APP_VERSION, app
 from fastapi.testclient import TestClient
 
 client = TestClient(app)
@@ -10,6 +10,12 @@ def test_health_check():
     data = response.json()
     assert data.get("status") == "ok"
     assert data.get("service") == "Beauty Studio API"
+
+
+def test_version():
+    response = client.get("/version")
+    assert response.status_code == 200
+    assert response.json() == {"version": APP_VERSION}
 
 
 def test_create_booking_schema_validation():
