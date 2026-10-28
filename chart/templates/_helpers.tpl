@@ -1,4 +1,7 @@
-# DVO-L4-3C8B52
+# _helpers.tpl — це файл зі спільними шаблонами-функціями у Helm-чарті. Іншими шаблонами їх можна викликати повторно.
+# Як він працює
+# - Підкреслення на початку (_) означає для Helm, що з цього файлу не треба генерувати Kubernetes-маніфест.
+# Файли deployment.yaml, service.yaml тощо перетворюються на ресурси, а _helpers.tpl лише зберігає визначення.
 {{/*
 Expand the name of the chart.
 */}}
@@ -18,8 +21,9 @@ If release name contains chart name it will be used as a full name.
 {{- $name := default .Chart.Name .Values.nameOverride }}
 {{- if contains $name .Release.Name }}
 {{- .Release.Name | trunc 63 | trimSuffix "-" }}
-{{- end }}
+{{- else }}
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- end }}
 {{- end }}
 {{- end }}
 

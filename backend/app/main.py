@@ -5,6 +5,9 @@ from sqlalchemy.orm import Session
 
 from app.database import Booking, SessionLocal, init_db
 
+# Версія застосунку. Міняється вручну перед збіркою нового образу (ЛР-5, 6, 7).
+APP_VERSION = "2.0.0"
+
 app = FastAPI(title="Beauty Studio API")
 
 app.add_middleware(
@@ -39,7 +42,12 @@ def startup():
 
 @app.get("/health")
 def health_check():
-        return {"status": "ok", "service": "Beauty Studio API", "version": "1.1.0"}
+    return {"status": "ok", "service": "Beauty Studio API", "version": APP_VERSION}
+
+
+@app.get("/version")
+def get_version():
+    return {"version": APP_VERSION}
 
 
 @app.get("/api/bookings")
