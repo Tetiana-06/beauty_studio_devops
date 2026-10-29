@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.database import Booking, SessionLocal, init_db
 
 # Версія застосунку. Міняється вручну перед збіркою нового образу (ЛР-5, 6, 7).
-APP_VERSION = "2.0.0"
+APP_VERSION = "5.0.0"
 
 app = FastAPI(title="Beauty Studio API")
 
