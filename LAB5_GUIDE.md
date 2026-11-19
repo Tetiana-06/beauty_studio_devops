@@ -1,4 +1,4 @@
-# Лабораторна робота №5: GitOps з Argo CD
+claude# Лабораторна робота №5: GitOps з Argo CD
 ## Покрокова інструкція (Beauty Studio)
 
 ---

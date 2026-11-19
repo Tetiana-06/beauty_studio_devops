@@ -1,4 +1,4 @@
-# DVO-L4-3C8B52
+{{- if not .Values.backend.rollout.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -10,6 +10,7 @@ metadata:
     {{- include "beauty-studio.annotations" . | nindent 4 }}
 spec:
   replicas: {{ .Values.backend.replicaCount }}
+  progressDeadlineSeconds: 60
   selector:
     matchLabels:
       {{- include "beauty-studio.backend.selectorLabels" . | nindent 6 }}
@@ -18,6 +19,7 @@ spec:
       labels:
         {{- include "beauty-studio.labels" . | nindent 8 }}
         {{- include "beauty-studio.backend.selectorLabels" . | nindent 8 }}
+        app: backend
       annotations:
         {{- include "beauty-studio.annotations" . | nindent 8 }}
     spec:
@@ -27,12 +29,16 @@ spec:
           image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
           imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
           ports:
-            - containerPort: {{ .Values.backend.service.port }}
+            - name: http
+              containerPort: {{ .Values.backend.service.port }}
+          env:
+            - name: FAIL_RATE
+              value: {{ .Values.backend.config.failRate | default "0.0" | quote }}
           envFrom:
             - configMapRef:
                 name: {{ include "beauty-studio.fullname" . }}-config
             - secretRef:
-                name: {{ include "beauty-studio.fullname" . }}-secret
+                name: {{ include "beauty-studio.secretName" . }}
           resources:
             {{- toYaml .Values.backend.resources | nindent 12 }}
           livenessProbe:
@@ -51,3 +57,4 @@ spec:
             periodSeconds: 5
             timeoutSeconds: 2
             failureThreshold: 3
+{{- end }}

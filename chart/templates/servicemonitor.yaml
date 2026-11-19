@@ -1,0 +1,21 @@
+{{- if .Values.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "beauty-studio.fullname" . }}-backend
+  labels:
+    {{- include "beauty-studio.labels" . | nindent 4 }}
+    app: backend
+  annotations:
+    {{- include "beauty-studio.annotations" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "beauty-studio.labels" . | nindent 6 }}
+      app: backend
+  endpoints:
+    - port: http
+      honorLabels: true          # ЛР-7: зберегти мітку endpoint застосунку (інакше Prometheus перейменує її на exported_endpoint)
+      path: {{ .Values.serviceMonitor.path | default "/metrics" }}
+      interval: {{ .Values.serviceMonitor.interval | default "10s" }}
+{{- end }}

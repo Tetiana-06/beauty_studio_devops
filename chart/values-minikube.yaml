@@ -1,0 +1,52 @@
+# Значення для локального кластера minikube.
+# Саме цей файл Argo CD накладає поверх values.yaml (див. argocd-apps/beauty-studio.yaml).
+# Щоб випустити нову версію — змініть тут backend.image.tag, зробіть commit і push.
+
+backend:
+  replicaCount: 4           # ЛР-6: не менше 4, щоб було видно співвідношення версій
+  rollout:
+    enabled: true           # ЛР-6, ЛР-7: Rollout замість Deployment
+  image:
+    repository: docker.io/tetiana88/beauty-backend
+    tag: "3.0.0"
+    pullPolicy: IfNotPresent
+  config:
+    appEnv: "minikube"
+    logLevel: "debug"
+    failRate: "0.0"         # ЛР-7 п. 6b: для відкату встановити "0.5"
+
+frontend:
+  replicaCount: 1
+  image:
+    repository: docker.io/tetiana88/beauty-frontend
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+
+database:
+  auth:
+    username: "user"
+    database: "beauty_db"
+    existingSecret: "beauty-db-secret"
+
+ingress:
+  enabled: false
+
+# ЛР-7: Observability
+serviceMonitor:
+  enabled: true
+  path: /metrics
+  interval: 10s
+
+dashboard:
+  enabled: true
+
+analysis:
+  enabled: true
+  threshold: 0.95
+  count: 3
+  interval: 10s
+  failureLimit: 1
+  prometheusAddress: "http://kube-prometheus-stack-prometheus.monitoring.svc:9090"
+
+prometheusRule:
+  enabled: true

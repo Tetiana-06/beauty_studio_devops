@@ -1,0 +1,26 @@
+{{- if .Values.analysis.enabled }}
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: {{ include "beauty-studio.fullname" . }}-success-rate
+  labels:
+    {{- include "beauty-studio.labels" . | nindent 4 }}
+spec:
+  metrics:
+    - name: success-rate
+      interval: {{ .Values.analysis.interval | default "10s" }}
+      count: {{ .Values.analysis.count | default 3 }}
+      failureLimit: {{ .Values.analysis.failureLimit | default 1 }}
+      successCondition: result[0] >= {{ .Values.analysis.threshold | default 0.95 }}
+      provider:
+        prometheus:
+          address: {{ .Values.analysis.prometheusAddress | default "http://kube-prometheus-stack-prometheus.monitoring.svc:9090" }}
+          query: |
+            (
+              sum(rate(http_requests_total{status!~"5..", endpoint!~"/metrics|/health"}[1m])) or vector(1)
+            )
+            /
+            (
+              sum(rate(http_requests_total{endpoint!~"/metrics|/health"}[1m])) or vector(1)
+            )
+{{- end }}
