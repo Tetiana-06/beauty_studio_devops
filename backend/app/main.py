@@ -3,7 +3,7 @@ import os
 import random
 import time
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
+from datetime import datetime
 
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,6 +13,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.database import Booking, SessionLocal, init_db
+from datetime import UTC, datetime
 
 
 # Версія застосунку. Міняється вручну перед збіркою нового образу (ЛР-5, 6, 7).
@@ -95,7 +96,7 @@ async def monitor_and_log_requests(request: Request, call_next):
         )
 
         log_entry = {
-            "time": datetime.now(timezone.utc).isoformat(),
+            "time": datetime.now(UTC).isoformat(),
             "level": "ERROR",
             "message": "Simulated error due to FAIL_RATE",
             "method": request.method,
@@ -125,7 +126,7 @@ async def monitor_and_log_requests(request: Request, call_next):
 
         level = "ERROR" if status_code >= 500 else ("WARNING" if status_code >= 400 else "INFO")
         log_entry = {
-            "time": datetime.now(timezone.utc).isoformat(),
+            "time": datetime.now(UTC).isoformat(),
             "level": level,
             "message": f"{request.method} {route_path} completed",
             "method": request.method,
