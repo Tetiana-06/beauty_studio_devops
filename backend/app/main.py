@@ -3,7 +3,7 @@ import os
 import random
 import time
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import UTC, datetime
 
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,8 +13,6 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.database import Booking, SessionLocal, init_db
-from datetime import UTC, datetime
-
 
 # Версія застосунку. Міняється вручну перед збіркою нового образу (ЛР-5, 6, 7).
 APP_VERSION = "7.0.0"
