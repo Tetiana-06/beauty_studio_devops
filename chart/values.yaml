@@ -29,6 +29,24 @@ backend:
     port: "8000"
     logLevel: "debug"
     corsAllowAll: "true"
+    failRate: "0.0"         # ЛР-7 п. 6b: частка помилок (0.0 = немає)
+
+  # ЛР-6, ЛР-7: Argo Rollouts замість Deployment.
+  rollout:
+    enabled: false          # true -> створюється Rollout, Deployment не створюється
+    canary:
+      # Без service mesh вага задається кількістю подів: при 4 репліках 25% = 1 под нової версії.
+      steps:
+        - setWeight: 25
+        - pause: { duration: 15s }
+        - analysis:
+            templates:
+              - templateName: beauty-studio-success-rate
+        - setWeight: 50
+        - pause: { duration: 30s }
+        - setWeight: 75
+        - pause: { duration: 30s }
+        # після останнього кроку автоматично 100%
 
 # Frontend service configuration
 frontend:
@@ -61,8 +79,9 @@ database:
     port: 5432
   auth:
     username: "user"
-    password: "dev_db_password_123"
+    password: ""
     database: "beauty_db"
+    existingSecret: ""
   persistence:
     enabled: true
     accessMode: ReadWriteOnce
@@ -92,3 +111,23 @@ ingress:
         - path: /api
           pathType: Prefix
           service: backend
+
+# ЛР-7: Observability
+serviceMonitor:
+  enabled: true
+  path: /metrics
+  interval: 10s
+
+dashboard:
+  enabled: true
+
+analysis:
+  enabled: true
+  threshold: 0.95
+  count: 3
+  interval: 10s
+  failureLimit: 1
+  prometheusAddress: "http://kube-prometheus-stack-prometheus.monitoring.svc:9090"
+
+prometheusRule:
+  enabled: true

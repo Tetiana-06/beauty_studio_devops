@@ -32,17 +32,17 @@ spec:
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "beauty-studio.fullname" . }}-secret
+                  name: {{ include "beauty-studio.secretName" . }}
                   key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "beauty-studio.fullname" . }}-secret
+                  name: {{ include "beauty-studio.secretName" . }}
                   key: POSTGRES_PASSWORD
             - name: POSTGRES_DB
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "beauty-studio.fullname" . }}-secret
+                  name: {{ include "beauty-studio.secretName" . }}
                   key: POSTGRES_DB
           resources:
             {{- toYaml .Values.database.resources | nindent 12 }}

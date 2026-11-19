@@ -58,6 +58,19 @@ mascot: "tetiana"
 {{- end }}
 
 {{/*
+Ім'я Secret з паролем БД.
+Якщо задано database.auth.existingSecret — беремо готовий Secret, створений вручну (пароля немає в Git).
+Інакше — Secret, який створює сам чарт (templates/secret.yaml).
+*/}}
+{{- define "beauty-studio.secretName" -}}
+{{- if .Values.database.auth.existingSecret }}
+{{- .Values.database.auth.existingSecret }}
+{{- else }}
+{{- include "beauty-studio.fullname" . }}-secret
+{{- end }}
+{{- end }}
+
+{{/*
 Selector labels for general chart resources
 */}}
 {{- define "beauty-studio.selectorLabels" -}}
